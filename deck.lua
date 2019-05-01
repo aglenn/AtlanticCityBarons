@@ -57,7 +57,7 @@ function Deck.renderCard(card, x, y)
 
     if card.block then
         moneyText = string.format("%d million", card.startMoney)
-        love.graphics.printf(moneyText,  x, y + CARD_HEIGHT/4, CARD_WIDTH, "center")
+        love.graphics.printf(moneyText,  x, y + CARD_HEIGHT/2, CARD_WIDTH, "center")
     end
 
     love.graphics.pop()
@@ -65,6 +65,9 @@ end
 
 function Deck:draw()
     self.drawIndex = self.drawIndex + 1
+    --ToDo discard counts
+    --ToDo take over last card rendering and put discard counts below
+    --Render fake deck?
     return self.cards[self.drawIndex]
 end
 

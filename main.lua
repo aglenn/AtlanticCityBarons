@@ -11,11 +11,13 @@ scale = 1
 
 function love.draw()
     love.graphics.scale(scale)
-    love.graphics.setBackgroundColor(10 / 255, 108 / 255, 3 / 255)    
-    Board:render(10 + (width-gw)/2, 10)
+    love.graphics.setBackgroundColor(10 / 255, 108 / 255, 3 / 255)
+    startPoint = 10 + (width-gw)/2
+    Board:render(startPoint, 10)
     
     if lastCard then
-        Deck.renderCard(lastCard, 10, 150)
+        --ToDo render more than 1 card?
+        Deck.renderCard(lastCard, startPoint + 8.5 * PROPERTY_SIZE + SCORE_WIDTH, gh / 2 - CARD_HEIGHT / 2)
     end
     love.graphics.rectangle("line", t.x, t.y, t.width, t.height)
     love.graphics.scale(1.0)
@@ -25,7 +27,6 @@ end
 -- https://github.com/vrld/hump
 -- https://github.com/robtandy/ship-game/blob/master/main.lua
 function love.load()
-    -- love.window.setMode(480, 800, {resizable=true})
     width, height = love.graphics.getDimensions()
     print(width,height)
     print(gw,gh)
@@ -37,8 +38,10 @@ function love.load()
     Deck:init()
     Deck:insertEnd()
 
-    
     t = Touchable:new("Test target", 10, 10, 50, 50)
+    function t:pressed()
+        lastCard = Deck:draw()
+    end
     Touch:add(t)
 end
 

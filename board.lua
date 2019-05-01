@@ -1,4 +1,5 @@
 require("colors")
+require("touch")
 
 SCORE_HEIGHT = 30
 SCORE_WIDTH = 60
@@ -8,83 +9,105 @@ DIE_SIZE = 18
 PIP_SIZE = 3
 
 Board = {blocks = {}, selectedBlock=nil}
+Property = Touchable:new("Property", 0, 0, PROPERTY_SIZE, PROPERTY_SIZE)
+function Property:new(block, number, price, value)
+    local newProperty = {name=block..number, block = block, number=number, price=price, value=value}
+    self.__index = self                      
+    return setmetatable(newProperty, self)
+end
 
+function Property:pressed()
+    -- property["y"] = yssed()
+    print("select "..self.name)
+    Board:select(self)
+end
 
 function Board:init()
     blockCounts = {6, 6, 12, 9, 6, 9}
     blockNames = {'A', 'B', 'C', 'D', 'E', 'F'}
 
+
     blockA = {
-        {block = 'A', price=9, value=3},
-        {block = 'A', price=6, value=2},
-        {block = 'A', price=15, value=5},
-        {block = 'A', price=12, value=4},
-        {block = 'A', price=9, value=3},
-        {block = 'A', price=20, value=6},
+        Property:new('A', 1, 9, 3),
+        Property:new('A', 2, 6, 2),
+        Property:new('A', 3, 15, 5),
+        Property:new('A', 4, 12, 4),
+        Property:new('A', 5, 9, 3),
+        Property:new('A', 6, 20, 6),
     }
     self.blocks['A'] = blockA
 
     blockB = {
-        {block = 'B', price=15, value=5},
-        {block = 'B', price=6, value=2},
-        {block = 'B', price=9, value=3},
-        {block = 'B', price=20, value=6},
-        {block = 'B', price=9, value=3},
-        {block = 'B', price=12, value=4},
+        Property:new('B', 1, 15, 5),
+        Property:new('B', 2, 6, 2),
+        Property:new('B', 3, 9, 3),
+        Property:new('B', 4, 20, 6),
+        Property:new('B', 5, 9, 3),
+        Property:new('B', 6, 12, 4),
     }
     self.blocks['B'] = blockB
 
     blockC = {
-        {block = 'C', price=12, value=4},
-        {block = 'C', price=9, value=3},
-        {block = 'C', price=20, value=6},
-        {block = 'C', price=6, value=2},
-        {block = 'C', price=8, value=1},
-        {block = 'C', price=12, value=4},
-        {block = 'C', price=6, value=2},
-        {block = 'C', price=8, value=1},
-        {block = 'C', price=12, value=4},
-        {block = 'C', price=9, value=3},
-        {block = 'C', price=6, value=2},
-        {block = 'C', price=15, value=5},
+        Property:new('C', 1, 12, 4),
+        Property:new('C', 2, 9, 3),
+        Property:new('C', 3, 20, 6),
+        Property:new('C', 4, 6, 2),
+        Property:new('C', 5, 8, 1),
+        Property:new('C', 6, 12, 4),
+        Property:new('C', 7, 6, 2),
+        Property:new('C', 8, 8, 1),
+        Property:new('C', 9, 12, 4),
+        Property:new('C', 10, 9, 3),
+        Property:new('C', 11, 6, 2),
+        Property:new('C', 12, 15, 5),
     }
     self.blocks['C'] = blockC
 
     blockD = {
-        {block = 'D', price=20, value=6},
-        {block = 'D', price=9, value=3},
-        {block = 'D', price=12, value=4},
-        {block = 'D', price=12, value=4},
-        {block = 'D', price=8, value=1},
-        {block = 'D', price=6, value=2},
-        {block = 'D', price=15, value=5},
-        {block = 'D', price=6, value=2},
-        {block = 'D', price=9, value=3},
+        Property:new('D', 1, 20, 6),
+        Property:new('D', 2, 9, 3),
+        Property:new('D', 3, 12, 4),
+        Property:new('D', 4, 12, 4),
+        Property:new('D', 5, 8, 1),
+        Property:new('D', 6, 6, 2),
+        Property:new('D', 7, 15, 5),
+        Property:new('D', 8, 6, 2),
+        Property:new('D', 9, 9, 3),
     }
     self.blocks['D'] = blockD
 
     blockE = {
-        {block = 'E', price=9, value=3},
-        {block = 'E', price=6, value=2},
-        {block = 'E', price=15, value=5},
-        {block = 'E', price=12, value=4},
-        {block = 'E', price=9, value=3},
-        {block = 'E', price=20, value=6},
+        Property:new('E', 1, 9, 3),
+        Property:new('E', 2, 6, 2),
+        Property:new('E', 3, 15, 5),
+        Property:new('E', 4, 12, 4),
+        Property:new('E', 5, 9, 3),
+        Property:new('E', 6, 20, 6),
     }
     self.blocks['E'] = blockE
 
     blockF = {
-        {block = 'F', price=20, value=6},
-        {block = 'F', price=9, value=3},
-        {block = 'F', price=12, value=4},
-        {block = 'F', price=12, value=4},
-        {block = 'F', price=8, value=1},
-        {block = 'F', price=6, value=2},
-        {block = 'F', price=15, value=5},
-        {block = 'F', price=6, value=2},
-        {block = 'F', price=9, value=3},
+        Property:new('F', 1, 20, 6),
+        Property:new('F', 2, 9, 3),
+        Property:new('F', 3, 12, 4),
+        Property:new('F', 4, 12, 4),
+        Property:new('F', 5, 8, 1),
+        Property:new('F', 6, 6, 2),
+        Property:new('F', 7, 15, 5),
+        Property:new('F', 8, 6, 2),
+        Property:new('F', 9, 9, 3),
     }
     self.blocks['F'] = blockF
+
+    print("loop prep")
+    for i,block in pairs(self.blocks) do
+        print("loop1")
+        for j,property in pairs(block) do
+            print("loop2")
+            c = property[j]
+            Touch:add(property)
+        end
+    end
 
     scoreValues = {
         0, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -103,6 +126,10 @@ function Board:init()
         self.scores[i] = {pointValue=score}
     end
     
+end
+
+function Board:select(property)
+    self.selectedBlock = property
 end
 
 function Board:render(x, y)
@@ -131,7 +158,12 @@ function Board:render(x, y)
     self:renderBlock(self.blocks['E'], x, y + 7*PROPERTY_SIZE)
     self:renderBlock(self.blocks['F'], x + 4*PROPERTY_SIZE, y + 6*PROPERTY_SIZE)
 
-    
+    if self.selectedBlock then
+        love.graphics.setColor(0, 1, 0)
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", self.selectedBlock.x, self.selectedBlock.y, PROPERTY_SIZE, PROPERTY_SIZE)
+        love.graphics.setLineWidth(1)
+    end
 end
 
 function Board:renderVerticalScore(score, textColor, x, y)
@@ -177,6 +209,9 @@ function Board:renderBlock(block, x, y)
 end
 
 function Board:renderProperty(property, position, x, y)
+
+    property["x"] = x
+    property["y"] = y
 
     casinoColor = {0, 0, 0}
     if property.casino then

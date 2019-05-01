@@ -1,23 +1,25 @@
-function take_over(board, player_num, position)
+function takeOver(playerNum, position)
+    Board.blocks[position.block][position.number].player = playerNum
+end
+
+function build(playerNum, position, casinoType)
+    --TODO: Check player money
+    -- Board.blocks[position.block][position.number].player = playerNum
+    Board.blocks[position.block][position.number].casino = casinoType
+end
+
+function sprawl(playerNum, source, destination)
 
 end
 
-function build(board, player_num, position)
-    
-end
-
-function sprawl(board, player_num, position)
+function remodel(playerNum, casinoMemberPosition)
 
 end
 
-function remodel(board, player_num, casino_member_position)
+function reorganize(playerNum, casinoMemberPosition)
 
 end
 
-function reorganize(board, player_num, casino_member_position)
-
-end
-
-function gamble(gambler_player_num, casino_player_num, wager)
+function gamble(gamblerPlayerNum, casinoPlayerNum, wager)
 
 end
