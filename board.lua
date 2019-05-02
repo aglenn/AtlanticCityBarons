@@ -8,10 +8,10 @@ PROPERTY_PADDING = 2
 DIE_SIZE = 18
 PIP_SIZE = 3
 
-Board = {blocks = {}, selectedBlock=nil}
+Board = {blocks = {}}
 Property = Touchable:new("Property", 0, 0, PROPERTY_SIZE, PROPERTY_SIZE)
-function Property:new(block, number, price, value)
-    local newProperty = {name=block..number, block = block, number=number, price=price, value=value}
+function Property:new(block, lot, price, value)
+    local newProperty = {name=block..lot, block = block, lot=lot, price=price, value=value}
     self.__index = self                      
     return setmetatable(newProperty, self)
 end
@@ -19,7 +19,7 @@ end
 function Property:pressed()
     -- property["y"] = yssed()
     print("select "..self.name)
-    Board:select(self)
+    Game:selectPosition(self)
 end
 
 function Board:init()
@@ -99,16 +99,12 @@ function Board:init()
     }
     self.blocks['F'] = blockF
 
-    print("loop prep")
     for i,block in pairs(self.blocks) do
-        print("loop1")
         for j,property in pairs(block) do
-            print("loop2")
             c = property[j]
             Touch:add(property)
         end
     end
-
     scoreValues = {
         0, 1, 2, 3, 4, 5, 6, 7, 8,
         10, 12, 14, 16, 18, 20,
@@ -128,40 +124,49 @@ function Board:init()
     
 end
 
-function Board:select(property)
-    self.selectedBlock = property
-end
-
 function Board:render(x, y)
+
+    scorePlayerLocations = {}
+    for _,player in pairs(Game.players) do
+        local emptyTable = {}
+        table.insert((scorePlayerLocations[player.scorePosition] or emptyTable), player.playerNumber)
+        scorePlayerLocations[player.scorePosition] = (scorePlayerLocations[player.scorePosition] or emptyTable)
+    end
 
     scoreY = y + 9*PROPERTY_SIZE + SCORE_HEIGHT
     for i=10,1,-1 do
         scoreX = x + (10-i) * SCORE_WIDTH
-        self:renderHorizontalScore(self.scores[i], ScoreTextColors.low, scoreX, scoreY)
+        local score = self.scores[i]
+        score.playersPresent = scorePlayerLocations[i]
+        self:renderHorizontalScore(score, ScoreTextColors.low, scoreX, scoreY)
     end
 
     for i=11,19 do
         scoreY = scoreY - SCORE_WIDTH
-        self:renderVerticalScore(self.scores[i], ScoreTextColors.medium, x, scoreY)
+        local score = self.scores[i]
+        score.playersPresent = scorePlayerLocations[i]
+        self:renderVerticalScore(score, ScoreTextColors.medium, x, scoreY)
     end
 
     for i=20,29 do
         scoreX = x + (i-20) * SCORE_WIDTH
-        self:renderHorizontalScore(self.scores[i], ScoreTextColors.high, scoreX, y)
+        local score = self.scores[i]
+        score.playersPresent = scorePlayerLocations[i]
+        self:renderHorizontalScore(score, ScoreTextColors.high, scoreX, y)
     end
 
-    x, y = x + SCORE_HEIGHT * 1 + PROPERTY_SIZE, y + SCORE_HEIGHT * 1
-    self:renderBlock(self.blocks['A'], x, y)
-    self:renderBlock(self.blocks['B'], x + 4*PROPERTY_SIZE, y)
-    self:renderBlock(self.blocks['C'], x, y + 2.5*PROPERTY_SIZE)
-    self:renderBlock(self.blocks['D'], x + 4*PROPERTY_SIZE, y + 2.5*PROPERTY_SIZE)
-    self:renderBlock(self.blocks['E'], x, y + 7*PROPERTY_SIZE)
-    self:renderBlock(self.blocks['F'], x + 4*PROPERTY_SIZE, y + 6*PROPERTY_SIZE)
+    blockX, blockY = x + SCORE_HEIGHT * 1 + PROPERTY_SIZE, y + SCORE_HEIGHT * 1
+    self:renderBlock(self.blocks['A'], blockX,blockY)
+    self:renderBlock(self.blocks['B'], blockX + 4*PROPERTY_SIZE,blockY)
+    self:renderBlock(self.blocks['C'], blockX,blockY + 2.5*PROPERTY_SIZE)
+    self:renderBlock(self.blocks['D'], blockX + 4*PROPERTY_SIZE,blockY + 2.5*PROPERTY_SIZE)
+    self:renderBlock(self.blocks['E'], blockX,blockY + 7*PROPERTY_SIZE)
+    self:renderBlock(self.blocks['F'], blockX + 4*PROPERTY_SIZE,blockY + 6*PROPERTY_SIZE)
 
-    if self.selectedBlock then
+    if Game.selectedBlock then
         love.graphics.setColor(0, 1, 0)
         love.graphics.setLineWidth(2)
-        love.graphics.rectangle("line", self.selectedBlock.x, self.selectedBlock.y, PROPERTY_SIZE, PROPERTY_SIZE)
+        love.graphics.rectangle("line", Game.selectedBlock.x, Game.selectedBlock.y, PROPERTY_SIZE, PROPERTY_SIZE)
         love.graphics.setLineWidth(1)
     end
 end
@@ -174,7 +179,6 @@ function Board:renderVerticalScore(score, textColor, x, y)
     if score.playersPresent then
         for i,player in ipairs(score.playersPresent) do
             playerColor = PlayerColors[player]
-            -- playerColor[4] = 0.5
             love.graphics.setColor(playerColor)
             love.graphics.circle("fill", x +((i-1)*4) + SCORE_HEIGHT/3, y + SCORE_WIDTH / 1.3, SCORE_HEIGHT/3)
         end
@@ -191,7 +195,6 @@ function Board:renderHorizontalScore(score, textColor, x, y)
     if score.playersPresent then
         for i,player in ipairs(score.playersPresent) do
             playerColor = PlayerColors[player]
-            -- playerColor[4] = 0.5
             love.graphics.setColor(playerColor)
             love.graphics.circle("fill", x + SCORE_WIDTH/4, y + ((i-1)*4) + SCORE_HEIGHT / 3, SCORE_HEIGHT/3)
         end
@@ -204,11 +207,12 @@ function Board:renderBlock(block, x, y)
     for i,property in ipairs(block) do
         row = math.floor((i-1)/3)
         column = (i-1) % 3
-        self:renderProperty(block[i], i, x + column * PROPERTY_SIZE, y + row * PROPERTY_SIZE)
+        self:renderProperty(block[i], x + column * PROPERTY_SIZE, y + row * PROPERTY_SIZE)
     end
 end
 
-function Board:renderProperty(property, position, x, y)
+function Board:renderProperty(property, x, y)
+
 
     property["x"] = x
     property["y"] = y
@@ -223,8 +227,8 @@ function Board:renderProperty(property, position, x, y)
 
     love.graphics.setColor(1, 1, 1)
     love.graphics.rectangle("line", x, y, PROPERTY_SIZE, PROPERTY_SIZE)
-    love.graphics.print(string.format( "%s%d", property.block, position), x + PROPERTY_PADDING, y)
-    love.graphics.print(string.format( "%d mil", property.price, position), x + PROPERTY_PADDING, y + 3 * PROPERTY_SIZE / 4 - PROPERTY_PADDING)
+    love.graphics.print(property.name, x + PROPERTY_PADDING, y)
+    love.graphics.print(property.price.." mil", x + PROPERTY_PADDING, y + 3 * PROPERTY_SIZE / 4 - PROPERTY_PADDING)
 
     dieX = (PROPERTY_SIZE - DIE_SIZE) / 2
     dieY = dieX
@@ -240,6 +244,7 @@ function Board:renderProperty(property, position, x, y)
         playerColor = PlayerColors[property.player]
         playerColor[4] = 0.5
         love.graphics.setColor(playerColor)
+        playerColor[4] = 1.0
         love.graphics.circle("fill", x + dieX + DIE_SIZE/2, y + dieY + DIE_SIZE/2, DIE_SIZE)
     end
 end
@@ -291,5 +296,49 @@ function Board:renderDie(value, color, x, y)
         love.graphics.rectangle("fill", threequarterX, quarterY, PIP_SIZE, PIP_SIZE)
         love.graphics.rectangle("fill", threequarterX, midY, PIP_SIZE, PIP_SIZE)
         love.graphics.rectangle("fill", threequarterX, threequarterY, PIP_SIZE, PIP_SIZE)
+    end
+end
+
+function Board:casinos(color)
+    casinos = {}
+
+    for _,block in pairs(Board.blocks) do
+        blockCasinos = {}
+        for _,property in ipairs(block) do
+            if property.casino then
+                for _,casino in ipairs(blockCasinos) do
+                    if casino.casinoColor == property.casnio then
+                        for _,casnioProperty in ipairs(casino.properties) do
+                            if self.adjacent(property, casnioProperty) then
+                                table.insert(casino.properties, property)
+                                casino.size = casino.size + 1
+                                goto found
+                            end
+                        end
+                    end
+                end
+                --ToDo create a new casino
+            end
+            ::found::
+        end
+    end
+
+    --ToDo determine boss
+
+    return casinos
+end
+
+function adjacent(property1, property2)
+    difference = math.abs(property1.lot - property2.lot)
+    if eif difference == 3 then
+        return true
+    elseif difference == 1 then
+        if property1.lot % 3 + property2.lot % 3 == 1 then
+            return false
+        else
+            return true
+        end        
+    else -- 2 and > 3 can't be neighbors
+        return false
     end
 end

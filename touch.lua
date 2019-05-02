@@ -1,12 +1,16 @@
 Touch = {targets = {}}
 
 function Touch:handle(x, y)
-    print("check ("..x..", "..y..")")
+    -- print("check ("..x..", "..y..")")
     for i,target in ipairs(self.targets) do
-        print("against ("..target.x..", "..target.y..", "..target.width..", "..target.height..")")
+        if target.active == false then
+            goto continue
+        end
+        -- print("against "..target.name.."("..target.x..", "..target.y..", "..target.width..", "..target.height..")")
         if x >= target.x and x <= target.x + target.width and y >= target.y and y <= target.y + target.height then
             target:pressed()
         end
+        ::continue::
     end
 end
 

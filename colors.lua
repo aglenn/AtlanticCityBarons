@@ -4,6 +4,7 @@ PlayerColors = {
     {0, 0, 1},
     {1, 1, 0},
 }
+BackgroundColor={10/255, 108/255, 3/255}
 CasinoColors = {
     purple={100/255, 4/255, 43/255},
     grey={110/255, 105/255, 89/255},
@@ -18,3 +19,4 @@ ScoreTextColors = {
     medium={44/255, 98/255, 16/255},
     high={226/255, 0, 17/255}
 }
+ButtonColor = ScoreBackgroundColor

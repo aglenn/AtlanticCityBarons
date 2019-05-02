@@ -1,6 +1,6 @@
 
 require("colors")
-Deck = {drawIndex=0}
+Deck = {drawIndex=0, discards={}, lastCard=nil}
 
 CARD_WIDTH=120
 CARD_HEIGHT=200
@@ -35,7 +35,15 @@ function Deck:init()
     self:shuffle()
 end
 
-function Deck.renderCard(card, x, y)
+function Deck:render(x, y)
+    if self.lastCard then
+        self:renderCard(self.lastCard, x, y)
+    end
+    --ToDo put discard counts below
+    --Render fake deck?
+end
+
+function Deck:renderCard(card, x, y)
     love.graphics.push()
 
     love.graphics.setColor(CasinoColors[card.color])
@@ -64,11 +72,10 @@ function Deck.renderCard(card, x, y)
 end
 
 function Deck:draw()
-    self.drawIndex = self.drawIndex + 1
-    --ToDo discard counts
-    --ToDo take over last card rendering and put discard counts below
-    --Render fake deck?
-    return self.cards[self.drawIndex]
+    self.drawIndex = self.drawIndex + 1    
+    self.lastCard = self.cards[self.drawIndex]
+    self.discards[self.lastCard.color] = (self.discards[self.lastCard.color] or 0) + 1
+    return self.lastCard
 end
 
 function Deck:insertEnd()
