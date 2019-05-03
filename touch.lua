@@ -15,7 +15,6 @@ function Touch:handle(x, y)
 end
 
 function Touch:add(target)
-    print("Add target ")
     table.insert(self.targets , target)
 end
 

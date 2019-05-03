@@ -4,6 +4,7 @@ Deck = {drawIndex=0, discards={}, lastCard=nil}
 
 CARD_WIDTH=120
 CARD_HEIGHT=200
+DISCARD_WIDTH = CARD_WIDTH / 5
 
 function Deck:init()
     counts = {6, 6, 12, 9, 6, 9}
@@ -39,8 +40,13 @@ function Deck:render(x, y)
     if self.lastCard then
         self:renderCard(self.lastCard, x, y)
     end
-    --ToDo put discard counts below
-    --Render fake deck?
+    local i = 0
+    for _,colorName in ipairs({"purple", "grey", "green", "red", "gold", "strip"}) do
+        local color = CasinoColors[colorName]
+        Deck:renderDiscard(x+i*(DISCARD_WIDTH + SPACER/2), y + CARD_HEIGHT + SPACER, self.discards[colorName], color)
+        i = i + 1
+    end
+    
 end
 
 function Deck:renderCard(card, x, y)
@@ -50,7 +56,7 @@ function Deck:renderCard(card, x, y)
     love.graphics.rectangle("fill", x, y, CARD_WIDTH, CARD_HEIGHT)
 
     love.graphics.setColor(1, 1, 1)
-    love.graphics.setLineWidth(4)
+    love.graphics.setLineWidth(2)
     love.graphics.rectangle("line", x, y, CARD_WIDTH, CARD_HEIGHT)
     love.graphics.setLineWidth(1)
 
@@ -69,6 +75,13 @@ function Deck:renderCard(card, x, y)
     end
 
     love.graphics.pop()
+end
+
+function Deck:renderDiscard(x, y, discard, color)
+    love.graphics.setColor(color)
+    love.graphics.circle("fill", x+DISCARD_WIDTH/2, y+DISCARD_WIDTH/2, DISCARD_WIDTH/2)
+    love.graphics.setColor({1, 1, 1})
+    love.graphics.printf(discard or 0,  x, y + DISCARD_WIDTH / 10, DISCARD_WIDTH, "center")
 end
 
 function Deck:draw()
